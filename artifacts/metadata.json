@@ -104,6 +104,66 @@
       "id": "e_20",
       "name": "relationships",
       "type": "concept"
+    },
+    {
+      "id": "e_1",
+      "name": "Jim Parsons",
+      "type": "person"
+    },
+    {
+      "id": "e_7",
+      "name": "Young Sheldon",
+      "type": "concept"
+    },
+    {
+      "id": "e_8",
+      "name": "CBS",
+      "type": "concept"
+    },
+    {
+      "id": "e_9",
+      "name": "Emmy Awards",
+      "type": "concept"
+    },
+    {
+      "id": "e_10",
+      "name": "People's Choice Awards",
+      "type": "concept"
+    },
+    {
+      "id": "e_11",
+      "name": "Reddit",
+      "type": "concept"
+    },
+    {
+      "id": "e_12",
+      "name": "Twitter",
+      "type": "concept"
+    },
+    {
+      "id": "e_13",
+      "name": "Fan forums",
+      "type": "concept"
+    },
+    {
+      "id": "e_14",
+      "name": "Flash t-shirts",
+      "type": "concept"
+    },
+    {
+      "id": "e_15",
+      "name": "Soft Kitty merchandise",
+      "type": "concept"
+    },
+    {
+      "id": "e_16",
+      "name": "United States",
+      "type": "place"
+    },
+    {
+      "id": "e_17",
+      "name": "International syndication",
+      "type": "concept"
     }
   ],
   "hyperedges": [
@@ -229,8 +289,120 @@
         "emotional growth",
         "relationships"
       ]
+    },
+    {
+      "id": "h_0",
+      "fact": "The Big Bang Theory attracted over 20 million viewers per episode in the United States.",
+      "connects": [
+        "The Big Bang Theory",
+        "United States"
+      ]
+    },
+    {
+      "id": "h_1",
+      "fact": "CBS renewed The Big Bang Theory multiple times due to its extraordinary ratings.",
+      "connects": [
+        "CBS",
+        "The Big Bang Theory"
+      ]
+    },
+    {
+      "id": "h_2",
+      "fact": "Jim Parsons won four Emmy Awards for Outstanding Lead Actor in a Comedy Series.",
+      "connects": [
+        "Jim Parsons",
+        "Emmy Awards"
+      ]
+    },
+    {
+      "id": "h_3",
+      "fact": "The Big Bang Theory won numerous Emmy Awards.",
+      "connects": [
+        "The Big Bang Theory",
+        "Emmy Awards"
+      ]
+    },
+    {
+      "id": "h_4",
+      "fact": "The Big Bang Theory won numerous People's Choice Awards.",
+      "connects": [
+        "The Big Bang Theory",
+        "People's Choice Awards"
+      ]
+    },
+    {
+      "id": "h_5",
+      "fact": "The Big Bang Theory has fan communities on Reddit.",
+      "connects": [
+        "The Big Bang Theory",
+        "Reddit"
+      ]
+    },
+    {
+      "id": "h_6",
+      "fact": "The Big Bang Theory has fan communities on Twitter.",
+      "connects": [
+        "The Big Bang Theory",
+        "Twitter"
+      ]
+    },
+    {
+      "id": "h_7",
+      "fact": "The Big Bang Theory has fan communities on fan forums.",
+      "connects": [
+        "The Big Bang Theory",
+        "Fan forums"
+      ]
+    },
+    {
+      "id": "h_8",
+      "fact": "Flash t-shirts are merchandise of The Big Bang Theory.",
+      "connects": [
+        "Flash t-shirts",
+        "The Big Bang Theory"
+      ]
+    },
+    {
+      "id": "h_9",
+      "fact": "Soft Kitty merchandise is merchandise of The Big Bang Theory.",
+      "connects": [
+        "Soft Kitty merchandise",
+        "The Big Bang Theory"
+      ]
+    },
+    {
+      "id": "h_10",
+      "fact": "Young Sheldon is a spinoff of The Big Bang Theory.",
+      "connects": [
+        "Young Sheldon",
+        "The Big Bang Theory"
+      ]
+    },
+    {
+      "id": "h_11",
+      "fact": "Young Sheldon explores Sheldon Cooper's childhood.",
+      "connects": [
+        "Young Sheldon",
+        "Sheldon Cooper"
+      ]
+    },
+    {
+      "id": "h_12",
+      "fact": "International syndication brought The Big Bang Theory to over 100 countries.",
+      "connects": [
+        "International syndication",
+        "The Big Bang Theory"
+      ]
+    },
+    {
+      "id": "h_13",
+      "fact": "International syndication made characters like Sheldon Cooper recognizable worldwide.",
+      "connects": [
+        "International syndication",
+        "Sheldon Cooper"
+      ]
     }
   ],
-  "entity_count": 21,
-  "hyperedge_count": 15
+  "entity_count": 33,
+  "hyperedge_count": 29
 }

@@ -25,15 +25,22 @@ def run_query(question: str, artifacts_dir: str = "artifacts"):
     print(answer)
     print("="*50 + "\n")
 
+def run_update(input_path: str, artifacts_dir: str = "artifacts"):
+    from graph.updater import Updater
+    log.info(f"Update mode — input: {input_path}")
+    updater = Updater(artifacts_dir)
+    result = updater.update(input_path)
+    print(f"\nUpdate complete: +{result['added_entities']} entities, +{result['added_hyperedges']} hyperedges\n")
+
 def main():
     parser = argparse.ArgumentParser(
         description="Multimodal Hypergraph RAG System"
     )
     parser.add_argument(
         "--mode",
-        choices=["build", "query"],
+        choices=["build", "query", "update"],
         required=True,
-        help="build: index a document | query: ask a question"
+        help="build: index a document | query: ask a question | update: incrementally update artifacts"
     )
     parser.add_argument(
         "--input",
@@ -63,6 +70,11 @@ def main():
         if not args.question:
             parser.error("--question is required for query mode")
         run_query(args.question, args.artifacts)
+
+    elif args.mode == "update":
+        if not args.input:
+            parser.error("--input is required for update mode")
+        run_update(args.input, args.artifacts)
 
 if __name__ == "__main__":
     main()
