@@ -39,11 +39,12 @@ You are a knowledge graph builder.
 Given the text chunk below, extract structured knowledge.
 
 Return ONLY valid JSON. No explanation. No markdown. No code fences.
+Do not wrap in ```json or any other formatting.
 
 Format:
 {{
   "entities": [
-    {{"name": "entity name", "type": "person/place/concept/event"}}
+        {{"name": "entity name", "type": "person"}}
   ],
   "hyperedges": [
     {{
@@ -54,10 +55,12 @@ Format:
 }}
 
 Rules:
+- type must be exactly one of: person, place, concept, event
 - Every hyperedge must connect at least 2 entities
 - Entity names must exist in the entities list above
 - Be concise — entity names 1-4 words max
 - Facts must be complete sentences
+- Return nothing except the JSON object
 
 Text chunk:
 {chunk}
@@ -208,13 +211,21 @@ def extract_entities(
 
         # process entities
         for e in parsed.get("entities", []):
-            if e["name"] not in seen_entity_names:
+            # defensive check — Nemotron sometimes returns strings instead of dicts
+            if isinstance(e, str):
+                name = e.strip()
+                etype = "concept"
+            else:
+                name = e.get("name", "").strip()
+                etype = e.get("type", "concept")
+
+            if name and name not in seen_entity_names:
                 all_entities.append({
                     "id": f"e_{entity_counter}",
-                    "name": e["name"],
-                    "type": e.get("type", "concept")
+                    "name": name,
+                    "type": etype
                 })
-                seen_entity_names.add(e["name"])
+                seen_entity_names.add(name)
                 entity_counter += 1
 
         # process hyperedges
