@@ -2,407 +2,773 @@
   "entities": [
     {
       "id": "e_0",
-      "name": "The Big Bang Theory",
+      "name": "HIRA",
       "type": "concept"
     },
     {
       "id": "e_1",
-      "name": "Leonard Hofstadter",
-      "type": "person"
+      "name": "Graph-R1",
+      "type": "concept"
     },
     {
       "id": "e_2",
-      "name": "Sheldon Cooper",
-      "type": "person"
+      "name": "Gemini Embedding 2",
+      "type": "concept"
     },
     {
       "id": "e_3",
-      "name": "Penny",
-      "type": "person"
+      "name": "Nvidia Nemotron",
+      "type": "concept"
     },
     {
       "id": "e_4",
-      "name": "Howard Wolowitz",
-      "type": "person"
+      "name": "Google AI Studio",
+      "type": "concept"
     },
     {
       "id": "e_5",
-      "name": "Raj Koothrappali",
-      "type": "person"
+      "name": "OpenRouter",
+      "type": "concept"
     },
     {
       "id": "e_6",
-      "name": "Amy Farrah Fowler",
-      "type": "person"
+      "name": "FAISS",
+      "type": "concept"
     },
     {
       "id": "e_7",
-      "name": "Caltech",
-      "type": "place"
+      "name": "NetworkX",
+      "type": "concept"
     },
     {
       "id": "e_8",
-      "name": "aerospace engineering",
+      "name": "Streamlit",
       "type": "concept"
     },
     {
       "id": "e_9",
-      "name": "astrophysics",
+      "name": "Docker",
       "type": "concept"
     },
     {
       "id": "e_10",
-      "name": "family",
+      "name": "Python 3.11+",
       "type": "concept"
     },
     {
       "id": "e_11",
-      "name": "identity",
+      "name": "knowledge hypergraph",
       "type": "concept"
     },
     {
       "id": "e_12",
-      "name": "scientific achievements",
+      "name": "dual-path vector search",
       "type": "concept"
     },
     {
       "id": "e_13",
-      "name": "friendship",
+      "name": "multi-turn agentic loop",
       "type": "concept"
     },
     {
       "id": "e_14",
-      "name": "emotional growth",
+      "name": "incremental hypergraph updater",
       "type": "concept"
     },
     {
       "id": "e_15",
-      "name": "Bang Theory",
-      "type": "concept"
+      "name": "Rakshith Dasari",
+      "type": "person"
     },
     {
       "id": "e_16",
-      "name": "jokes per minute",
+      "name": "Free-tier build time",
       "type": "concept"
     },
     {
       "id": "e_17",
-      "name": "closure",
+      "name": "Gemini API",
       "type": "concept"
     },
     {
       "id": "e_18",
-      "name": "friendships",
+      "name": "document size",
       "type": "concept"
     },
     {
       "id": "e_19",
-      "name": "intelligence alone",
+      "name": "Deletion",
       "type": "concept"
     },
     {
       "id": "e_20",
-      "name": "relationships",
+      "name": "updater",
+      "type": "concept"
+    },
+    {
+      "id": "e_21",
+      "name": "IndexIDMap",
+      "type": "concept"
+    },
+    {
+      "id": "e_22",
+      "name": "Milvus",
+      "type": "concept"
+    },
+    {
+      "id": "e_23",
+      "name": "Image entity descriptions",
+      "type": "concept"
+    },
+    {
+      "id": "e_24",
+      "name": "extraction LLM",
+      "type": "concept"
+    },
+    {
+      "id": "e_25",
+      "name": "image bytes",
+      "type": "concept"
+    },
+    {
+      "id": "e_26",
+      "name": "Full multimodal extraction",
+      "type": "concept"
+    },
+    {
+      "id": "e_27",
+      "name": "vision-capable extraction model",
+      "type": "concept"
+    },
+    {
+      "id": "e_28",
+      "name": "author",
+      "type": "concept"
+    },
+    {
+      "id": "e_0",
+      "name": "Game of Thrones",
       "type": "concept"
     },
     {
       "id": "e_1",
-      "name": "Jim Parsons",
+      "name": "David Benioff",
       "type": "person"
     },
     {
-      "id": "e_7",
-      "name": "Young Sheldon",
+      "id": "e_2",
+      "name": "D. B. Weiss",
+      "type": "person"
+    },
+    {
+      "id": "e_3",
+      "name": "A Song of Ice and Fire",
       "type": "concept"
     },
     {
+      "id": "e_4",
+      "name": "George R. R. Martin",
+      "type": "person"
+    },
+    {
+      "id": "e_5",
+      "name": "HBO",
+      "type": "concept"
+    },
+    {
+      "id": "e_6",
+      "name": "Westeros",
+      "type": "place"
+    },
+    {
+      "id": "e_7",
+      "name": "Essos",
+      "type": "place"
+    },
+    {
       "id": "e_8",
-      "name": "CBS",
+      "name": "Iron Throne",
       "type": "concept"
     },
     {
       "id": "e_9",
-      "name": "Emmy Awards",
-      "type": "concept"
+      "name": "Seven Kingdoms",
+      "type": "place"
     },
     {
       "id": "e_10",
-      "name": "People's Choice Awards",
+      "name": "House Stark",
       "type": "concept"
     },
     {
       "id": "e_11",
-      "name": "Reddit",
+      "name": "House Lannister",
       "type": "concept"
     },
     {
       "id": "e_12",
-      "name": "Twitter",
+      "name": "House Targaryen",
       "type": "concept"
     },
     {
       "id": "e_13",
-      "name": "Fan forums",
+      "name": "House Baratheon",
       "type": "concept"
     },
     {
       "id": "e_14",
-      "name": "Flash t-shirts",
+      "name": "House Greyjoy",
       "type": "concept"
     },
     {
       "id": "e_15",
-      "name": "Soft Kitty merchandise",
-      "type": "concept"
+      "name": "Jon Snow",
+      "type": "person"
     },
     {
       "id": "e_16",
-      "name": "United States",
-      "type": "place"
+      "name": "Daenerys Targaryen",
+      "type": "person"
     },
     {
       "id": "e_17",
-      "name": "International syndication",
+      "name": "Tyrion Lannister",
+      "type": "person"
+    },
+    {
+      "id": "e_18",
+      "name": "Cersei Lannister",
+      "type": "person"
+    },
+    {
+      "id": "e_19",
+      "name": "Arya Stark",
+      "type": "person"
+    },
+    {
+      "id": "e_20",
+      "name": "Sansa Stark",
+      "type": "person"
+    },
+    {
+      "id": "e_21",
+      "name": "Jaime Lannister",
+      "type": "person"
+    },
+    {
+      "id": "e_22",
+      "name": "Night's Watch",
       "type": "concept"
+    },
+    {
+      "id": "e_23",
+      "name": "White Walkers",
+      "type": "concept"
+    },
+    {
+      "id": "e_24",
+      "name": "Jon Arryn",
+      "type": "person"
+    },
+    {
+      "id": "e_25",
+      "name": "Eddard Stark",
+      "type": "person"
+    },
+    {
+      "id": "e_26",
+      "name": "King's Landing",
+      "type": "place"
+    },
+    {
+      "id": "e_27",
+      "name": "North",
+      "type": "place"
+    },
+    {
+      "id": "e_28",
+      "name": "Beyond the Wall",
+      "type": "place"
+    },
+    {
+      "id": "e_29",
+      "name": "Power and Corruption",
+      "type": "concept"
+    },
+    {
+      "id": "e_30",
+      "name": "Honor vs Survival",
+      "type": "concept"
+    },
+    {
+      "id": "e_31",
+      "name": "Family and Loyalty",
+      "type": "concept"
+    },
+    {
+      "id": "e_32",
+      "name": "Fate and Identity",
+      "type": "concept"
+    },
+    {
+      "id": "e_33",
+      "name": "Faceless Men",
+      "type": "concept"
+    },
+    {
+      "id": "e_34",
+      "name": "Political Intrigue",
+      "type": "concept"
+    },
+    {
+      "id": "e_35",
+      "name": "War of the Five Kings",
+      "type": "event"
+    },
+    {
+      "id": "e_36",
+      "name": "Rise of Daenerys",
+      "type": "event"
+    },
+    {
+      "id": "e_37",
+      "name": "Threat of the White Walkers",
+      "type": "event"
+    },
+    {
+      "id": "e_38",
+      "name": "Red Wedding",
+      "type": "event"
+    },
+    {
+      "id": "e_39",
+      "name": "Battle of the Bastards",
+      "type": "event"
+    },
+    {
+      "id": "e_40",
+      "name": "Destruction of the Sept of Baelor",
+      "type": "event"
+    },
+    {
+      "id": "e_41",
+      "name": "Long Night",
+      "type": "event"
     }
   ],
   "hyperedges": [
     {
       "id": "h_0",
-      "fact": "Leonard Hofstadter and Sheldon Cooper work as physicists at Caltech.",
+      "fact": "HIRA extends Graph-R1.",
       "connects": [
-        "Leonard Hofstadter",
-        "Sheldon Cooper",
-        "Caltech"
+        "HIRA",
+        "Graph-R1"
       ]
     },
     {
       "id": "h_1",
-      "fact": "Penny moves in across the hall from Leonard Hofstadter and Sheldon Cooper.",
+      "fact": "HIRA uses Gemini Embedding 2 for multimodal embedding.",
       "connects": [
-        "Penny",
-        "Leonard Hofstadter",
-        "Sheldon Cooper"
+        "HIRA",
+        "Gemini Embedding 2"
       ]
     },
     {
       "id": "h_2",
-      "fact": "Howard Wolowitz works as an aerospace engineer.",
+      "fact": "HIRA employs Nvidia Nemotron as its agentic controller.",
       "connects": [
-        "Howard Wolowitz",
-        "aerospace engineering"
+        "HIRA",
+        "Nvidia Nemotron"
       ]
     },
     {
       "id": "h_3",
-      "fact": "Raj Koothrappali is an astrophysicist who initially struggles to talk to women.",
+      "fact": "HIRA constructs a knowledge hypergraph from documents and images.",
       "connects": [
-        "Raj Koothrappali",
-        "astrophysics"
+        "HIRA",
+        "knowledge hypergraph"
       ]
     },
     {
       "id": "h_4",
-      "fact": "Sheldon Cooper builds a meaningful relationship with Amy Farrah Fowler.",
+      "fact": "HIRA indexes the hypergraph for dual-path vector search.",
       "connects": [
-        "Sheldon Cooper",
-        "Amy Farrah Fowler"
+        "HIRA",
+        "dual-path vector search"
       ]
     },
     {
       "id": "h_5",
-      "fact": "Leonard Hofstadter and Penny develop a long-term romantic bond that matures into marriage.",
+      "fact": "HIRA reasons over retrieved context using a multi-turn agentic loop.",
       "connects": [
-        "Leonard Hofstadter",
-        "Penny"
+        "HIRA",
+        "multi-turn agentic loop"
       ]
     },
     {
       "id": "h_6",
-      "fact": "Howard Wolowitz grows from an immature flirtatious character into a responsible husband and father.",
+      "fact": "HIRA supports incremental hypergraph updates.",
       "connects": [
-        "Howard Wolowitz",
-        "family"
+        "HIRA",
+        "incremental hypergraph updater"
       ]
     },
     {
       "id": "h_7",
-      "fact": "Raj Koothrappali's journey reflects struggles with confidence and identity in social and romantic contexts.",
+      "fact": "Google AI Studio and OpenRouter provide required API keys for HIRA.",
       "connects": [
-        "Raj Koothrappali",
-        "identity"
+        "Google AI Studio",
+        "OpenRouter",
+        "HIRA"
       ]
     },
     {
       "id": "h_8",
-      "fact": "The Big Bang Theory incorporates real scientific achievements and milestones into its storyline.",
+      "fact": "FAISS and NetworkX enable retrieval in HIRA.",
       "connects": [
-        "The Big Bang Theory",
-        "scientific achievements"
+        "FAISS",
+        "NetworkX",
+        "HIRA"
       ]
     },
     {
       "id": "h_9",
-      "fact": "In its final seasons, The Big Bang Theory focuses more on closure, friendships, and emotional growth than on jokes per minute.",
+      "fact": "Streamlit launches the web interface of HIRA.",
       "connects": [
-        "The Big Bang Theory",
-        "friendship",
-        "emotional growth"
+        "Streamlit",
+        "HIRA"
       ]
     },
     {
       "id": "h_10",
-      "fact": "Bang Theory becomes less about jokes per minute.",
+      "fact": "Docker setup is pending for HIRA deployment.",
       "connects": [
-        "Bang Theory",
-        "jokes per minute"
+        "Docker",
+        "HIRA"
       ]
     },
     {
       "id": "h_11",
-      "fact": "Bang Theory becomes more about closure.",
+      "fact": "Python 3.11+ is required to run HIRA.",
       "connects": [
-        "Bang Theory",
-        "closure"
+        "Python 3.11+",
+        "HIRA"
       ]
     },
     {
       "id": "h_12",
-      "fact": "Bang Theory becomes more about friendships.",
+      "fact": "Free-tier build time is governed by the Gemini API rate limit.",
       "connects": [
-        "Bang Theory",
-        "friendships"
+        "Free-tier build time",
+        "Gemini API"
       ]
     },
     {
       "id": "h_13",
-      "fact": "Bang Theory becomes more about intelligence alone.",
+      "fact": "Free-tier build time scales linearly with document size.",
       "connects": [
-        "Bang Theory",
-        "intelligence alone"
+        "Free-tier build time",
+        "document size"
       ]
     },
     {
       "id": "h_14",
-      "fact": "Emotional growth and relationships matter just as much.",
+      "fact": "Deletion is not supported and the updater is append-only.",
       "connects": [
-        "emotional growth",
-        "relationships"
+        "Deletion",
+        "updater"
+      ]
+    },
+    {
+      "id": "h_15",
+      "fact": "Migrate FAISS to IndexIDMap or replace with Milvus.",
+      "connects": [
+        "FAISS",
+        "IndexIDMap",
+        "Milvus"
+      ]
+    },
+    {
+      "id": "h_16",
+      "fact": "Image entity descriptions are passed as file path text to the extraction LLM rather than actual image bytes.",
+      "connects": [
+        "Image entity descriptions",
+        "extraction LLM",
+        "image bytes"
+      ]
+    },
+    {
+      "id": "h_17",
+      "fact": "Full multimodal extraction requires a vision-capable extraction model.",
+      "connects": [
+        "Full multimodal extraction",
+        "vision-capable extraction model"
+      ]
+    },
+    {
+      "id": "h_18",
+      "fact": "Rakshith Dasari is the author.",
+      "connects": [
+        "Rakshith Dasari",
+        "author"
       ]
     },
     {
       "id": "h_0",
-      "fact": "The Big Bang Theory attracted over 20 million viewers per episode in the United States.",
+      "fact": "Game of Thrones is a television series created by David Benioff and D. B. Weiss.",
       "connects": [
-        "The Big Bang Theory",
-        "United States"
+        "Game of Thrones",
+        "David Benioff",
+        "D. B. Weiss"
       ]
     },
     {
       "id": "h_1",
-      "fact": "CBS renewed The Big Bang Theory multiple times due to its extraordinary ratings.",
+      "fact": "Game of Thrones is based on the book series A Song of Ice and Fire by George R. R. Martin.",
       "connects": [
-        "CBS",
-        "The Big Bang Theory"
+        "Game of Thrones",
+        "A Song of Ice and Fire",
+        "George R. R. Martin"
       ]
     },
     {
       "id": "h_2",
-      "fact": "Jim Parsons won four Emmy Awards for Outstanding Lead Actor in a Comedy Series.",
+      "fact": "Game of Thrones aired on HBO from 2011 to 2019.",
       "connects": [
-        "Jim Parsons",
-        "Emmy Awards"
+        "Game of Thrones",
+        "HBO"
       ]
     },
     {
       "id": "h_3",
-      "fact": "The Big Bang Theory won numerous Emmy Awards.",
+      "fact": "Game of Thrones is set in the fictional continents of Westeros and Essos.",
       "connects": [
-        "The Big Bang Theory",
-        "Emmy Awards"
+        "Game of Thrones",
+        "Westeros",
+        "Essos"
       ]
     },
     {
       "id": "h_4",
-      "fact": "The Big Bang Theory won numerous People's Choice Awards.",
+      "fact": "The Iron Throne is the seat of power in the Seven Kingdoms.",
       "connects": [
-        "The Big Bang Theory",
-        "People's Choice Awards"
+        "Iron Throne",
+        "Seven Kingdoms"
       ]
     },
     {
       "id": "h_5",
-      "fact": "The Big Bang Theory has fan communities on Reddit.",
+      "fact": "Jon Snow is a member of House Stark.",
       "connects": [
-        "The Big Bang Theory",
-        "Reddit"
+        "Jon Snow",
+        "House Stark"
       ]
     },
     {
       "id": "h_6",
-      "fact": "The Big Bang Theory has fan communities on Twitter.",
+      "fact": "Tyrion Lannister is a member of House Lannister.",
       "connects": [
-        "The Big Bang Theory",
-        "Twitter"
+        "Tyrion Lannister",
+        "House Lannister"
       ]
     },
     {
       "id": "h_7",
-      "fact": "The Big Bang Theory has fan communities on fan forums.",
+      "fact": "Daenerys Targaryen is a member of House Targaryen.",
       "connects": [
-        "The Big Bang Theory",
-        "Fan forums"
+        "Daenerys Targaryen",
+        "House Targaryen"
       ]
     },
     {
       "id": "h_8",
-      "fact": "Flash t-shirts are merchandise of The Big Bang Theory.",
+      "fact": "House Baratheon was the ruling house at the start of the series.",
       "connects": [
-        "Flash t-shirts",
-        "The Big Bang Theory"
+        "House Baratheon",
+        "Game of Thrones"
       ]
     },
     {
       "id": "h_9",
-      "fact": "Soft Kitty merchandise is merchandise of The Big Bang Theory.",
+      "fact": "House Greyjoy is one of the noble houses of Westeros.",
       "connects": [
-        "Soft Kitty merchandise",
-        "The Big Bang Theory"
+        "House Greyjoy",
+        "Westeros"
       ]
     },
     {
       "id": "h_10",
-      "fact": "Young Sheldon is a spinoff of The Big Bang Theory.",
+      "fact": "Jon Snow joined the Night's Watch.",
       "connects": [
-        "Young Sheldon",
-        "The Big Bang Theory"
+        "Jon Snow",
+        "Night's Watch"
       ]
     },
     {
       "id": "h_11",
-      "fact": "Young Sheldon explores Sheldon Cooper's childhood.",
+      "fact": "Daenerys Targaryen seeks to reclaim the Iron Throne.",
       "connects": [
-        "Young Sheldon",
-        "Sheldon Cooper"
+        "Daenerys Targaryen",
+        "Iron Throne"
       ]
     },
     {
       "id": "h_12",
-      "fact": "International syndication brought The Big Bang Theory to over 100 countries.",
+      "fact": "Tyrion Lannister serves as a voice of reason in House Lannister politics.",
       "connects": [
-        "International syndication",
-        "The Big Bang Theory"
+        "Tyrion Lannister",
+        "House Lannister"
       ]
     },
     {
       "id": "h_13",
-      "fact": "International syndication made characters like Sheldon Cooper recognizable worldwide.",
+      "fact": "Cersei Lannister rose to power by claiming the Iron Throne.",
       "connects": [
-        "International syndication",
-        "Sheldon Cooper"
+        "Cersei Lannister",
+        "Iron Throne"
+      ]
+    },
+    {
+      "id": "h_14",
+      "fact": "Arya Stark trained with the Faceless Men and became a skilled assassin.",
+      "connects": [
+        "Arya Stark",
+        "House Stark"
+      ]
+    },
+    {
+      "id": "h_15",
+      "fact": "Sansa Stark became politically savvy and played a key role in the North's independence.",
+      "connects": [
+        "Sansa Stark",
+        "House Stark"
+      ]
+    },
+    {
+      "id": "h_16",
+      "fact": "Jaime Lannister developed from a morally questionable knight into a more complex character.",
+      "connects": [
+        "Jaime Lannister",
+        "House Lannister"
+      ]
+    },
+    {
+      "id": "h_17",
+      "fact": "Jon Snow's journey is deeply connected to the threat beyond the Wall—the White Walkers.",
+      "connects": [
+        "Jon Snow",
+        "White Walkers"
+      ]
+    },
+    {
+      "id": "h_18",
+      "fact": "Arya Stark trains with the Faceless Men and becomes a skilled assassin.",
+      "connects": [
+        "Arya Stark",
+        "Faceless Men"
+      ]
+    },
+    {
+      "id": "h_19",
+      "fact": "Sansa Stark undergoes significant growth and becomes politically savvy in the North.",
+      "connects": [
+        "Sansa Stark",
+        "North"
+      ]
+    },
+    {
+      "id": "h_20",
+      "fact": "Jaime Lannister develops into a more sympathetic character, reflecting themes of honor and redemption.",
+      "connects": [
+        "Jaime Lannister",
+        "Honor vs Survival"
+      ]
+    },
+    {
+      "id": "h_21",
+      "fact": "Jon Arryn's death triggers political intrigue in King's Landing.",
+      "connects": [
+        "Jon Arryn",
+        "Political Intrigue",
+        "King's Landing"
+      ]
+    },
+    {
+      "id": "h_22",
+      "fact": "Eddard Stark is appointed Hand of the King, leading him into dangerous political intrigue in King's Landing.",
+      "connects": [
+        "Eddard Stark",
+        "Political Intrigue",
+        "King's Landing"
+      ]
+    },
+    {
+      "id": "h_23",
+      "fact": "Daenerys Targaryen gathers power in Essos and prepares to invade Westeros.",
+      "connects": [
+        "Daenerys Targaryen",
+        "Essos",
+        "Westeros"
+      ]
+    },
+    {
+      "id": "h_24",
+      "fact": "Cersei Lannister's rise to power is marked by the Destruction of the Sept of Baelor.",
+      "connects": [
+        "Cersei Lannister",
+        "Destruction of the Sept of Baelor"
+      ]
+    },
+    {
+      "id": "h_25",
+      "fact": "The War of the Five Kings involves multiple rulers claiming the throne, leading to widespread conflict across Westeros.",
+      "connects": [
+        "War of the Five Kings",
+        "Westeros"
+      ]
+    },
+    {
+      "id": "h_26",
+      "fact": "The Threat of the White Walkers looms beyond the Wall, endangering all of humanity.",
+      "connects": [
+        "Threat of the White Walkers",
+        "Beyond the Wall"
+      ]
+    },
+    {
+      "id": "h_27",
+      "fact": "The Red Wedding is a shocking betrayal that changes the course of the War of the Five Kings.",
+      "connects": [
+        "Red Wedding",
+        "War of the Five Kings"
+      ]
+    },
+    {
+      "id": "h_28",
+      "fact": "The Battle of the Bastards is a major battle for control of the North.",
+      "connects": [
+        "Battle of the Bastards",
+        "North"
+      ]
+    },
+    {
+      "id": "h_29",
+      "fact": "The Long Night depicts the battle against the White Walkers.",
+      "connects": [
+        "Long Night",
+        "Threat of the White Walkers"
+      ]
+    },
+    {
+      "id": "h_30",
+      "fact": "Game of Thrones explores themes such as Power and Corruption and Honor vs Survival.",
+      "connects": [
+        "Game of Thrones",
+        "Power and Corruption",
+        "Honor vs Survival"
       ]
     }
   ],
-  "entity_count": 33,
-  "hyperedge_count": 29
+  "entity_count": 71,
+  "hyperedge_count": 50
 }

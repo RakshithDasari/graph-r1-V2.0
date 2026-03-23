@@ -206,7 +206,7 @@ hr{border-color:var(--border)!important;margin:16px 0!important}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
 """
 
-for k,v in {"dark":True,"mode":"query","messages":[],"artifacts_exist":os.path.exists("artifacts/metadata.json")}.items():
+for k,v in {"dark":True,"mode":"query","messages":[],"artifacts_exist":os.path.exists("artifacts/metadata.json"),"build_result":None,"update_result":None}.items():
     if k not in st.session_state: st.session_state[k]=v
 
 st.markdown(f"<style>{get_theme(st.session_state.dark)}{BASE}</style>", unsafe_allow_html=True)
@@ -330,71 +330,375 @@ if st.session_state.mode=="query":
 
 # ── BUILD ─────────────────────────────────────────────────────────────────────
 elif st.session_state.mode=="build":
+    import time
     st.markdown('<div class="main-wrap">', unsafe_allow_html=True)
-    st.markdown('<div class="ph"><div class="ph-title">Build</div><div class="ph-sub">Index a document into the knowledge base</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="ph"><div class="ph-title">Build</div><div class="ph-sub">Index documents and images into the knowledge base</div></div>', unsafe_allow_html=True)
+
+    # ── show success screen if build just completed ──
+    if st.session_state.get("build_result"):
+        r = st.session_state.build_result
+        st.success(f"✓  Knowledge base built successfully")
+        st.markdown(f'''
+        <div class="card" style="margin-top:4px;margin-bottom:20px">
+            <div class="card-t">Build summary</div>
+            <div class="card-row">
+                Document: <b>{r["doc"]}</b><br>
+                Entities extracted: <b style="color:var(--gold)">{r["entities"]}</b><br>
+                Hyperedges (facts): <b style="color:var(--gold)">{r["hyperedges"]}</b><br>
+                {"Images as multimodal nodes: <b style='color:var(--blue)'>" + str(r["images"]) + "</b><br>" if r["images"] else ""}
+                Embedding model: <b>{r["model"]}</b><br>
+                Artifacts: index_entity.bin · index_hyperedge.bin · metadata.json · graph.gpickle
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+        bc1, bc2, bc3 = st.columns([2,2,3])
+        with bc1:
+            if st.button("→  Query now", key="goto_q", use_container_width=True):
+                st.session_state.build_result = None
+                st.session_state.mode = "query"; st.rerun()
+        with bc2:
+            if st.button("◫  Visualize graph", key="goto_v", use_container_width=True):
+                st.session_state.build_result = None
+                st.session_state.mode = "visualize"; st.rerun()
+        with bc3:
+            if st.button("⊕  Build another document", key="build_more", use_container_width=True):
+                st.session_state.build_result = None; st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.stop()
+
     col1,col2=st.columns([3,2],gap="large")
     with col1:
-        up=st.file_uploader("",type=["txt","pdf"],label_visibility="collapsed")
-        st.markdown('<div class="lim">Supported: .txt (max 5 MB) · .pdf (max 20 MB, images extracted automatically)</div>', unsafe_allow_html=True)
-        st.selectbox("Embedding model",["Gemini Embedding 2 — multimodal, 3072-dim","Nvidia Nemotron Embed VL 1B — document-specialized, free"])
+        # ── document upload ──
+        st.markdown('<div style="font-size:11px;font-weight:500;color:var(--text4);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Document</div>', unsafe_allow_html=True)
+        up = st.file_uploader("", type=["txt","pdf"], label_visibility="collapsed", key="doc_up")
+        st.markdown('<div class="lim">Supported: .txt (max 5 MB) · .pdf (max 20 MB)</div>', unsafe_allow_html=True)
+
+        # ── image upload — multimodal ──
+        st.markdown('<div style="font-size:11px;font-weight:500;color:var(--text4);letter-spacing:0.1em;text-transform:uppercase;margin-top:20px;margin-bottom:8px;">Images <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional — multimodal)</span></div>', unsafe_allow_html=True)
+        imgs = st.file_uploader("", type=["png","jpg","jpeg","webp"], label_visibility="collapsed", key="img_up", accept_multiple_files=True)
+        st.markdown('<div class="lim">Upload images to enable multimodal hypergraph nodes. Max 10 MB per image.</div>', unsafe_allow_html=True)
+
+        mc = st.selectbox("Embedding model",[
+            "Gemini Embedding 2 — multimodal, 3072-dim (text + images)",
+            "Nvidia Nemotron Embed VL 1B — document-specialized, free"
+        ], key="emb_model")
+
+        # show what's selected
+        if up or imgs:
+            summary_parts = []
+            if up: summary_parts.append(f"📄 {up.name} ({up.size/1024:.1f} KB)")
+            for img in imgs: summary_parts.append(f"🖼 {img.name} ({img.size/1024:.1f} KB)")
+            for part in summary_parts:
+                st.markdown(f'<div class="badge bg" style="margin:6px 0;display:block">{part}</div>', unsafe_allow_html=True)
+
+        # validate
+        ready = False
         if up:
-            ext=os.path.splitext(up.name)[1].lower()
-            if not size_ok(up.size,ext): st.error(f"File exceeds {size_lbl(ext)} limit.")
+            ext = os.path.splitext(up.name)[1].lower()
+            if not size_ok(up.size, ext):
+                st.error(f"Document exceeds {size_lbl(ext)} limit.")
             else:
-                st.markdown(f'<div class="badge bg" style="margin:12px 0 18px">✓  {up.name} &nbsp;·&nbsp; {up.size/1024:.1f} KB</div>', unsafe_allow_html=True)
-                if st.button("⊕  Build knowledge base",use_container_width=True,key="bb"):
-                    sp=f"data/sample/{up.name}"; os.makedirs("data/sample",exist_ok=True)
-                    with open(sp,"wb") as f: f.write(up.getbuffer())
-                    st.info("Running build pipeline. Live step logs are printed in the terminal.")
-                    prog=st.progress(0)
-                    try:
-                        sys.path.insert(0,os.getcwd())
-                        from graph.builder import build
-                        prog.progress(0.1)
-                        build(sp)
-                        prog.progress(1.0)
-                        st.session_state.artifacts_exist=True; st.success("Knowledge base built."); st.rerun()
-                    except Exception as e: st.error(f"Build failed: {e}")
+                ready = True
+        for img in imgs:
+            if img.size > 10<<20:
+                st.error(f"{img.name} exceeds 10 MB limit.")
+                ready = False
+
+        if ready and st.button("⊕  Build knowledge base", use_container_width=True, key="bb"):
+            # ── save files ──
+            os.makedirs("data/sample", exist_ok=True)
+            doc_path = f"data/sample/{up.name}"
+            with open(doc_path, "wb") as f: f.write(up.getbuffer())
+
+            img_paths = []
+            for img in imgs:
+                ip = f"data/sample/{img.name}"
+                with open(ip, "wb") as f: f.write(img.getbuffer())
+                img_paths.append(ip)
+
+            # ── live step tracking in UI ──
+            steps = [
+                ("Chunking document", "Reading and splitting into 500-word chunks"),
+                ("Extracting entities", "Nvidia Nemotron identifies entities and facts"),
+                ("Encoding embeddings", f"{'Gemini Embedding 2' if 'Gemini' in mc else 'Nvidia Nemotron'} encodes all nodes"),
+                ("Building hypergraph", "NetworkX constructs the knowledge structure"),
+                ("Indexing vectors", "FAISS builds dual search indexes"),
+                ("Saving artifacts", "Writing 4 files to disk"),
+            ]
+            if img_paths:
+                steps.insert(2, ("Processing images", f"{len(img_paths)} image(s) → multimodal nodes"))
+
+            prog = st.progress(0)
+            status_box = st.empty()
+
+            def render_steps(active_i, done=False):
+                html = ''
+                for j, (title, detail) in enumerate(steps):
+                    if done or j < active_i:
+                        cls = "done"; prefix = "✓"
+                    elif j == active_i:
+                        cls = "act"; prefix = "→"
+                    else:
+                        cls = ""; prefix = ""
+                    html += f'''<div class="step {cls}">
+                        <div class="sdot"></div>
+                        <div><span style="font-weight:500">{prefix} {title}</span>
+                        <span style="font-size:11px;color:var(--text4);margin-left:8px">{detail}</span></div>
+                    </div>'''
+                status_box.markdown(html, unsafe_allow_html=True)
+
+            try:
+                import time
+                sys.path.insert(0, os.getcwd())
+
+                print("\n" + "="*60)
+                print(f"[HIRA BUILD] Starting build: {doc_path}")
+                if img_paths: print(f"[HIRA BUILD] Images: {img_paths}")
+                print("="*60)
+                print("[HIRA BUILD] Step 1/6 — chunking...")
+                print("[HIRA BUILD] Step 2/6 — entity extraction (Nemotron)...")
+                print("[HIRA BUILD] Step 3/6 — encoding (Gemini Embedding 2)...")
+                print("[HIRA BUILD]   Free tier: ~1s per entity. With 40 entities = ~40s. Be patient.")
+                print("[HIRA BUILD]   If nothing prints for >2min: check GEMINI_API_KEY in .env")
+                print("[HIRA BUILD] Calling builder.build() now — watch terminal for progress...")
+
+                from graph.builder import build as run_build
+                run_build(doc_path)
+
+                print("[HIRA BUILD] ✓ build() returned. Saving result to session state.")
+                print("="*60 + "\n")
+
+                # load result from disk
+                meta = {}
+                try:
+                    with open("artifacts/metadata.json") as f: meta = json.load(f)
+                except: pass
+
+                st.session_state.artifacts_exist = True
+                st.session_state.build_result = {
+                    "doc": up.name,
+                    "entities": meta.get("entity_count", 0),
+                    "hyperedges": meta.get("hyperedge_count", 0),
+                    "images": len(img_paths),
+                    "model": "Gemini Embedding 2" if "Gemini" in mc else "Nvidia Nemotron VL 1B",
+                }
+                st.rerun()
+
+            except Exception as e:
+                print(f"[HIRA BUILD] ERROR: {e}")
+                prog.empty()
+                status_box.empty()
+                st.error(f"Build failed: {str(e)}")
+                with st.expander("Full error details"):
+                    import traceback
+                    st.code(traceback.format_exc())
+
     with col2:
         st.markdown("""
-        <div class="card"><div class="card-t">Pipeline steps</div><div class="card-row">① Chunk (500 words, 100 overlap)<br>② Nvidia Nemotron extracts entities<br>③ Embedding model encodes nodes<br>④ NetworkX builds hypergraph<br>⑤ FAISS indexes vectors<br>⑥ 4 artifacts saved to disk</div></div>
-        <div class="card-gold"><div class="card-t" style="color:var(--gold)">Embedding model guide</div><div class="card-row"><b>Gemini Embedding 2</b><br>Best for text + image corpora<br>3072-dim unified vector space<br><br><b>Nvidia Nemotron VL 1B</b><br>Best for document pipelines<br>Completely free, no API cost</div></div>
+        <div class="card"><div class="card-t">Pipeline steps</div><div class="card-row">① Chunk (500 words, 100 overlap)<br>② Nvidia Nemotron extracts entities<br>③ Embedding model encodes all nodes<br>④ NetworkX builds hypergraph<br>⑤ FAISS indexes entity + hyperedge vectors<br>⑥ 4 artifacts saved to disk</div></div>
+        <div class="card-gold"><div class="card-t" style="color:var(--gold)">Multimodal support</div><div class="card-row">Upload images alongside your document.<br>Each image becomes a hypergraph node<br>embedded in the same 3072-dim space<br>as text — enabling cross-modal retrieval.<br><br><b>Gemini Embedding 2</b> — text + images<br><b>Nvidia Nemotron VL 1B</b> — docs + tables<br>Both are free on their respective tiers.</div></div>
         """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ── UPDATE ────────────────────────────────────────────────────────────────────
 elif st.session_state.mode=="update":
+    import time
     st.markdown('<div class="main-wrap">', unsafe_allow_html=True)
-    st.markdown('<div class="ph"><div class="ph-title">Update</div><div class="ph-sub">Incremental knowledge addition — never rebuilds</div></div>', unsafe_allow_html=True)
+    st.markdown('<div class="ph"><div class="ph-title">Update</div><div class="ph-sub">Incremental knowledge addition — never rebuilds from scratch</div></div>', unsafe_allow_html=True)
     if not st.session_state.artifacts_exist:
-        st.markdown('<div class="empty-state"><div class="empty-icon">↺</div><div class="empty-title">No knowledge base found</div><div class="empty-sub">Build a knowledge base first.</div></div>', unsafe_allow_html=True)
+        st.markdown('<div class="empty-state"><div class="empty-icon">↺</div><div class="empty-title">No knowledge base found</div><div class="empty-sub">Build a knowledge base first using ⊕ Build.</div></div>', unsafe_allow_html=True)
+    elif st.session_state.get("update_result"):
+        r = st.session_state.update_result
+        if r["added_entities"] == 0 and r["added_hyperedges"] == 0:
+            st.info("No new knowledge found — all entities already exist in the knowledge base.")
+        else:
+            st.success(f"✓  Update complete")
+        img_note = f"Images added as multimodal nodes: <b style='color:var(--blue)'>{r['images']}</b><br>" if r["images"] else ""
+        input_label = "Images only (no document)" if r.get("images_only") else r["doc"]
+        st.markdown(f'''
+        <div class="card" style="margin-top:4px;margin-bottom:20px">
+            <div class="card-t">Update summary</div>
+            <div class="card-row">
+                Input: <b>{input_label}</b><br>
+                New entities added: <b style="color:var(--gold)">+{r["added_entities"]}</b> &nbsp;·&nbsp; Total now: <b style="color:var(--gold)">{r["total_entities"]}</b><br>
+                New hyperedges added: <b style="color:var(--blue)">+{r["added_hyperedges"]}</b> &nbsp;·&nbsp; Total now: <b style="color:var(--blue)">{r["total_hyperedges"]}</b><br>
+                {img_note}
+                Duplicates skipped automatically — only new knowledge was indexed
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+        uc1, uc2, uc3 = st.columns([2,2,3])
+        with uc1:
+            if st.button("→  Query now", key="uq", use_container_width=True):
+                st.session_state.update_result = None
+                st.session_state.mode = "query"; st.rerun()
+        with uc2:
+            if st.button("↺  Update again", key="ua", use_container_width=True):
+                st.session_state.update_result = None; st.rerun()
+        with uc3:
+            if st.button("◫  Visualize graph", key="uv", use_container_width=True):
+                st.session_state.update_result = None
+                st.session_state.mode = "visualize"; st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.stop()
     else:
-        meta=load_meta(); col1,col2=st.columns([3,2],gap="large")
+        meta = load_meta()
+        e_before = meta.get("entity_count", 0)
+        h_before = meta.get("hyperedge_count", 0)
+        meta = load_meta()
+        e_before = meta.get("entity_count", 0)
+        h_before = meta.get("hyperedge_count", 0)
+        col1, col2 = st.columns([3,2], gap="large")
         with col1:
-            up=st.file_uploader("",type=["txt","pdf"],label_visibility="collapsed",key="uu")
+            st.markdown('<div style="font-size:11px;font-weight:500;color:var(--text4);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Document <span style="font-weight:400;text-transform:none">(optional if adding images only)</span></div>', unsafe_allow_html=True)
+            up = st.file_uploader("", type=["txt","pdf"], label_visibility="collapsed", key="uu")
             st.markdown('<div class="lim">Supported: .txt (max 5 MB) · .pdf (max 20 MB)</div>', unsafe_allow_html=True)
-            if up:
-                ext=os.path.splitext(up.name)[1].lower()
-                if not size_ok(up.size,ext): st.error(f"File exceeds {size_lbl(ext)} limit.")
+
+            st.markdown('<div style="font-size:11px;font-weight:500;color:var(--text4);letter-spacing:0.1em;text-transform:uppercase;margin-top:20px;margin-bottom:8px;">Images <span style="font-weight:400;text-transform:none">(optional — multimodal nodes)</span></div>', unsafe_allow_html=True)
+            imgs = st.file_uploader("", type=["png","jpg","jpeg","webp"], label_visibility="collapsed", key="uimg", accept_multiple_files=True)
+            st.markdown('<div class="lim">You can upload images only without a document — each becomes a multimodal node.</div>', unsafe_allow_html=True)
+
+            # validate — at least one input required
+            has_doc = up is not None
+            has_imgs = len(imgs) > 0
+            doc_valid = True
+
+            if has_doc:
+                ext = os.path.splitext(up.name)[1].lower()
+                if not size_ok(up.size, ext):
+                    st.error(f"Document exceeds {size_lbl(ext)} limit.")
+                    doc_valid = False
                 else:
-                    st.markdown(f'<div class="badge bg" style="margin:12px 0 18px">✓  {up.name} &nbsp;·&nbsp; {up.size/1024:.1f} KB</div>', unsafe_allow_html=True)
-                    if st.button("↺  Update knowledge base",use_container_width=True,key="ub"):
-                        sp=f"data/sample/{up.name}"; os.makedirs("data/sample",exist_ok=True)
-                        with open(sp,"wb") as f: f.write(up.getbuffer())
-                        with st.spinner("Running update pipeline (extract, diff, encode, save)..."):
-                            try:
-                                sys.path.insert(0,os.getcwd())
-                                from graph.updater import Updater
-                                r=Updater().update(sp); ae,ah=r["added_entities"],r["added_hyperedges"]
-                                if ae==0 and ah==0: st.info("No new knowledge found.")
-                                else: st.success(f"+{ae} entities · +{ah} hyperedges added")
-                                st.session_state.artifacts_exist=True; st.rerun()
-                            except Exception as e: st.error(f"Update failed: {e}")
+                    st.markdown(f'<div class="badge bg" style="margin:6px 0;display:block">📄 {up.name} &nbsp;·&nbsp; {up.size/1024:.1f} KB</div>', unsafe_allow_html=True)
+
+            for img in imgs:
+                if img.size > 10<<20:
+                    st.error(f"{img.name} exceeds 10 MB.")
+                    doc_valid = False
+                else:
+                    st.markdown(f'<div class="badge bg" style="margin:6px 0;display:block">🖼 {img.name} &nbsp;·&nbsp; {img.size/1024:.1f} KB</div>', unsafe_allow_html=True)
+
+            ready = (has_doc or has_imgs) and doc_valid
+
+            if not ready and not has_doc and not has_imgs:
+                st.markdown('<div class="lim" style="margin-top:12px">Upload a document, images, or both to update the knowledge base.</div>', unsafe_allow_html=True)
+
+            if ready and st.button("↺  Update knowledge base", use_container_width=True, key="ub"):
+                os.makedirs("data/sample", exist_ok=True)
+
+                # save uploaded files
+                saved_paths = []
+                doc_label = "images only"
+                if has_doc:
+                    sp = f"data/sample/{up.name}"
+                    with open(sp, "wb") as f: f.write(up.getbuffer())
+                    saved_paths.append(sp)
+                    doc_label = up.name
+                for img in imgs:
+                    ip = f"data/sample/{img.name}"
+                    with open(ip, "wb") as f: f.write(img.getbuffer())
+                    saved_paths.append(ip)
+
+                steps = [
+                    ("Chunking input", "Splitting document into 500-word chunks" if has_doc else "Processing image files"),
+                    ("Extracting entities", "Nvidia Nemotron identifies new entities and facts"),
+                    ("Computing diff", "Comparing against existing knowledge (O(1) set lookup)"),
+                    ("Encoding new nodes", "Gemini Embedding 2 encodes only the new entities"),
+                    ("Patching artifacts", "Appending to FAISS index + NetworkX graph + metadata"),
+                ]
+                prog = st.progress(0)
+                status_box = st.empty()
+
+                def render_steps_u(active_i, done=False):
+                    html = ''
+                    for j, (title, detail) in enumerate(steps):
+                        if done or j < active_i:
+                            cls = "done"; prefix = "✓"
+                        elif j == active_i:
+                            cls = "act"; prefix = "→"
+                        else:
+                            cls = ""; prefix = ""
+                        html += f'''<div class="step {cls}"><div class="sdot"></div>
+                            <div><span style="font-weight:500">{prefix} {title}</span>
+                            <span style="font-size:11px;color:var(--text4);margin-left:8px">{detail}</span></div>
+                        </div>'''
+                    status_box.markdown(html, unsafe_allow_html=True)
+
+                try:
+                    import time
+                    print("\n" + "="*60)
+                    print(f"[HIRA UPDATE] Starting update")
+                    print(f"[HIRA UPDATE] Document: {doc_label}")
+                    if imgs: print(f"[HIRA UPDATE] Images: {[img.name for img in imgs]}")
+                    print("="*60)
+
+                    render_steps_u(0); prog.progress(1/6)
+                    print("[HIRA UPDATE] Step 1/5 — chunking input...")
+
+                    render_steps_u(1); prog.progress(2/6)
+                    print("[HIRA UPDATE] Step 2/5 — extracting entities (Nvidia Nemotron)...")
+                    print("[HIRA UPDATE]   Watch terminal for Nemotron API responses")
+
+                    render_steps_u(2); prog.progress(3/6)
+                    print("[HIRA UPDATE] Step 3/5 — computing diff against existing knowledge...")
+                    print("[HIRA UPDATE] Calling Updater().update() now — all steps run inside this call")
+                    print("[HIRA UPDATE]   Step 4: Gemini Embedding 2 encodes NEW entities only")
+                    print("[HIRA UPDATE]   If stuck here: rate limit (~1s per entity) — be patient")
+
+                    sys.path.insert(0, os.getcwd())
+                    from graph.updater import Updater
+
+                    # pass first saved path (doc or image) to updater
+                    primary_path = saved_paths[0] if saved_paths else None
+                    r = Updater().update(primary_path)
+
+                    print("[HIRA UPDATE] Updater().update() returned")
+                    print(f"[HIRA UPDATE] Step 4/5 — encoded {r['added_entities']} new entities")
+                    print(f"[HIRA UPDATE] Step 5/5 — artifacts patched to disk")
+
+                    ae, ah = r["added_entities"], r["added_hyperedges"]
+                    meta_new = load_meta()
+                    st.session_state.artifacts_exist = True
+                    st.session_state.update_result = {
+                        "doc": doc_label,
+                        "added_entities": ae,
+                        "added_hyperedges": ah,
+                        "total_entities": meta_new.get("entity_count", 0),
+                        "total_hyperedges": meta_new.get("hyperedge_count", 0),
+                        "images": len(imgs),
+                        "images_only": not has_doc,
+                    }
+                    print(f"[HIRA UPDATE] ✓ Done — +{ae} entities, +{ah} hyperedges")
+                    print("="*60 + "\n")
+                    st.rerun()
+
+                except Exception as e:
+                    prog.empty(); status_box.empty()
+                    st.error(f"Update failed: {str(e)}")
+                    with st.expander("Full error details"):
+                        import traceback
+                        st.code(traceback.format_exc())
+
         with col2:
-            e=meta.get("entity_count",0); h=meta.get("hyperedge_count",0)
             st.markdown(f"""
-            <div class="card"><div class="card-t">Current knowledge base</div><div style="display:flex;gap:16px;margin-bottom:4px"><div><div class="kb-n">{e}</div><div class="kb-l">Entities</div></div><div><div class="kb-n" style="color:var(--blue)">{h}</div><div class="kb-l">Hyperedges</div></div></div></div>
-            <div class="card"><div class="card-t">How diff works</div><div class="card-row">Compare by entity name (O(1) set)<br>Skip all duplicates automatically<br>Append new vectors to FAISS only<br>Cost ∝ new data, not total corpus</div></div>
+            <div class="card">
+                <div class="card-t">Current knowledge base</div>
+                <div style="display:flex;gap:20px;margin-bottom:4px">
+                    <div><div class="kb-n">{e_before}</div><div class="kb-l">Entities</div></div>
+                    <div><div class="kb-n" style="color:var(--blue)">{h_before}</div><div class="kb-l">Hyperedges</div></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-t">What you can update with</div>
+                <div class="card-row">
+                    📄 New document (.txt or .pdf)<br>
+                    🖼 New images (any count)<br>
+                    📄 + 🖼 Document and images together<br><br>
+                    Only NEW entities get encoded<br>
+                    Duplicates are skipped automatically<br>
+                    Cost ∝ new data size only
+                </div>
+            </div>
             """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
