@@ -8,3 +8,4 @@ openai                # OpenAI-compatible SDK to call Nvidia/Qwen via OpenRouter
 pymupdf               # fitz — PDF text and image extraction
 streamlit             # web UI
 pyvis                 # interactive knowledge graph visualization
+langsmith             # tracing and observability

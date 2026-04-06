@@ -1,5 +1,8 @@
 import streamlit as st
 import os, sys, json, pickle, tempfile
+from langsmith_tracing import setup_langsmith
+
+setup_langsmith()
 
 st.set_page_config(page_title="HIRA", page_icon="◈", layout="wide", initial_sidebar_state="expanded")
 

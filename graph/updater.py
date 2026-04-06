@@ -12,6 +12,7 @@ import logging
 import faiss
 import networkx as nx
 from dotenv import load_dotenv
+from langsmith import traceable
 from graph.encoder import GeminiEncoder
 from graph.builder import (
     chunk_document,
@@ -19,8 +20,10 @@ from graph.builder import (
     encode_entities,
     encode_hyperedges,
 )
+from langsmith_tracing import setup_langsmith
 
 load_dotenv()
+setup_langsmith()
 log = logging.getLogger(__name__)
 
 encoder = GeminiEncoder()
@@ -39,10 +42,12 @@ class Updater:
       3. Images only    — update(image_paths=["img1.png", "img2.png"])
     """
 
+    @traceable(name="updater_init", run_type="chain")
     def __init__(self, artifacts_dir: str = "artifacts"):
         self.artifacts_dir = artifacts_dir
         self._load_artifacts()
 
+    @traceable(name="updater_load_artifacts", run_type="chain")
     def _load_artifacts(self):
         # load FAISS indexes
         self.index_entity = faiss.read_index(
@@ -74,6 +79,7 @@ class Updater:
             f"{len(self.hyperedges)} hyperedges"
         )
 
+    @traceable(name="updater_compute_diff", run_type="chain")
     def _compute_diff(
         self,
         new_entities: list,
@@ -103,6 +109,7 @@ class Updater:
         )
         return fresh_entities, fresh_hyperedges
 
+    @traceable(name="updater_update_faiss", run_type="chain")
     def _update_faiss(
         self,
         fresh_entities: list,
@@ -120,6 +127,7 @@ class Updater:
             new_hyperedge_embeddings = encode_hyperedges(fresh_hyperedges)
             self.index_hyperedge.add(new_hyperedge_embeddings)
 
+    @traceable(name="updater_update_graph", run_type="chain")
     def _update_graph(
         self,
         fresh_entities: list,
@@ -148,6 +156,7 @@ class Updater:
                 if entity_name in entity_name_set:
                     self.G.add_edge(h["id"], entity_name)
 
+    @traceable(name="updater_save_artifacts", run_type="chain")
     def _save_artifacts(self) -> None:
         """
         Persists updated artifacts back to disk.
@@ -186,6 +195,7 @@ class Updater:
             f"{len(self.hyperedges)} hyperedges"
         )
 
+    @traceable(name="updater_run", run_type="chain")
     def update(
         self,
         input_path: str = None,

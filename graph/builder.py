@@ -14,9 +14,12 @@ import networkx as nx
 from typing import List, Tuple, Dict
 from openai import OpenAI
 from dotenv import load_dotenv
+from langsmith import traceable
 from graph.encoder import GeminiEncoder
+from langsmith_tracing import setup_langsmith, wrap_openai_client
 
 load_dotenv()
+setup_langsmith()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,12 +28,12 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 encoder = GeminiEncoder()
-qwen = OpenAI(
+qwen = wrap_openai_client(OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.getenv("OPENROUTER_API_KEY"),
     timeout=90.0,
     max_retries=2,
-)
+))
 
 # =============================================================================
 # EXTRACTION PROMPT + PARSER
@@ -68,6 +71,7 @@ Text chunk:
 {chunk}
 """
 
+@traceable(name="parse_llm_response", run_type="chain")
 def parse_llm_response(response: str) -> dict:
     # step 1 — strip markdown code fences if LLM added them
     response = re.sub(r'```json|```', '', response).strip()
@@ -82,6 +86,7 @@ def parse_llm_response(response: str) -> dict:
 # STEP 1 — CHUNKING
 # =============================================================================
 
+@traceable(name="sliding_window", run_type="chain")
 def _sliding_window(text: str, chunk_size: int, overlap: int) -> List[str]:
 
     # step 1 — split entire text into individual words
@@ -105,6 +110,7 @@ def _sliding_window(text: str, chunk_size: int, overlap: int) -> List[str]:
     return chunks
 
 
+@traceable(name="chunk_document", run_type="chain")
 def chunk_document(
     input_path: str,
     chunk_size: int = 500,
@@ -168,6 +174,7 @@ def chunk_document(
 # =============================================================================
 # STEP 2 — ENTITY + HYPEREDGE EXTRACTION
 # =============================================================================
+@traceable(name="extract_entities", run_type="chain")
 def extract_entities(
     chunks: List[str],
     image_paths: List[str]
@@ -290,6 +297,7 @@ def extract_entities(
 # =============================================================================
 # STEP 3 — ENCODING
 # =============================================================================
+@traceable(name="encode_entities", run_type="chain")
 def encode_entities(entities: List[Dict]) -> np.ndarray:
     if not entities:
         raise ValueError("Cannot encode: entity list is empty.")
@@ -300,6 +308,7 @@ def encode_entities(entities: List[Dict]) -> np.ndarray:
     return embeddings.astype(np.float32)
 
 
+@traceable(name="encode_hyperedges", run_type="chain")
 def encode_hyperedges(hyperedges: List[Dict]) -> np.ndarray:
     if not hyperedges:
         raise ValueError("Cannot encode: hyperedge list is empty.")
@@ -311,6 +320,7 @@ def encode_hyperedges(hyperedges: List[Dict]) -> np.ndarray:
 # =============================================================================
 # STEP 4 — BUILD NETWORKX GRAPH
 # =============================================================================
+@traceable(name="build_graph", run_type="chain")
 def build_graph(
     entities: List[Dict],
     hyperedges: List[Dict]
@@ -354,6 +364,7 @@ def build_graph(
 # =============================================================================
 # STEP 5 — BUILD FAISS INDEXES
 # =============================================================================
+@traceable(name="build_faiss_indexes", run_type="chain")
 def build_faiss_indexes(
     entity_embeddings: np.ndarray,
     hyperedge_embeddings: np.ndarray
@@ -388,6 +399,7 @@ def build_faiss_indexes(
 # =============================================================================
 # STEP 6 — SAVE TO DISK
 # =============================================================================
+@traceable(name="save_artifacts", run_type="chain")
 def save(
     G: nx.Graph,
     index_entity: faiss.Index,
@@ -428,6 +440,7 @@ def save(
 # =============================================================================
 # MASTER BUILD FUNCTION
 # =============================================================================
+@traceable(name="build_pipeline", run_type="chain")
 def build(input_path: str, save_dir: str = "artifacts") -> None:
     """
     End-to-end pipeline. Only function main.py ever calls.

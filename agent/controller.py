@@ -4,14 +4,17 @@ import json
 import logging
 from openai import OpenAI
 from dotenv import load_dotenv
+from langsmith import traceable
+from langsmith_tracing import setup_langsmith, wrap_openai_client
 
 load_dotenv()
+setup_langsmith()
 log = logging.getLogger(__name__)
 
-qwen = OpenAI(
+qwen = wrap_openai_client(OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.getenv("OPENROUTER_API_KEY")
-)
+))
 
 CONTROLLER_PROMPT = """\
 You are an intelligent research agent.
@@ -43,10 +46,12 @@ class Controller:
     This makes the system domain-agnostic — no retraining needed.
     """
 
+    @traceable(name="controller_init", run_type="chain")
     def __init__(self, max_turns: int = 3):
         # max_turns prevents infinite loop if LLM keeps saying "need more info"
         self.max_turns = max_turns
 
+    @traceable(name="controller_decide", run_type="chain")
     def decide(self, query: str, context: dict) -> dict:
         # format context for prompt
         entity_names = [e["name"] for e in context.get("entities", [])]
@@ -89,6 +94,7 @@ class Controller:
             "next_query": result.get("next_query")
         }
 
+    @traceable(name="controller_run", run_type="chain")
     def run(self, query: str, retriever) -> str:
         """
         Full agentic loop.

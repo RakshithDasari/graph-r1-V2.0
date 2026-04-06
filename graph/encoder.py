@@ -8,8 +8,11 @@ from google import genai
 from google.genai import types
 from PIL import Image
 import numpy as np
+from langsmith import traceable
+from langsmith_tracing import setup_langsmith
 
 load_dotenv()
+setup_langsmith()
 
 class GeminiEncoder:
     """
@@ -18,11 +21,13 @@ class GeminiEncoder:
     This is the core innovation over Graph-R1's text-only BGE encoder.
     """
 
+    @traceable(name="encoder_init", run_type="chain")
     def __init__(self):
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
         self.model = "gemini-embedding-2-preview"
         self.dim = 3072
 
+    @traceable(name="encode_text", run_type="embedding")
     def _encode_text(self, text: str) -> np.ndarray:
         response = self.client.models.embed_content(
             model=self.model,
@@ -30,6 +35,7 @@ class GeminiEncoder:
         )
         return np.array(response.embeddings[0].values, dtype=np.float32)
 
+    @traceable(name="encode_image", run_type="embedding")
     def _encode_image(self, image_path: str) -> np.ndarray:
         with Image.open(image_path) as img:
             # convert to RGB — strips alpha channel from PNGs
@@ -56,6 +62,7 @@ class GeminiEncoder:
         )
         return np.array(response.embeddings[0].values, dtype=np.float32)
 
+    @traceable(name="encode_input", run_type="embedding")
     def encode(self, input) -> np.ndarray:
         """
         Single entry point — pass text string or image path.
@@ -67,6 +74,7 @@ class GeminiEncoder:
         else:
             return self._encode_text(str(input))
 
+    @traceable(name="encode_batch", run_type="embedding")
     def encode_batch(self, inputs: list) -> np.ndarray:
         """
         Encode a list of texts and/or image paths.

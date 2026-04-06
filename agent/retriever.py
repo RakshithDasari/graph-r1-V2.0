@@ -6,8 +6,11 @@ import numpy as np
 import faiss
 import networkx as nx
 from graph.encoder import GeminiEncoder
+from langsmith import traceable
+from langsmith_tracing import setup_langsmith
 
 log = logging.getLogger(__name__)
+setup_langsmith()
 
 class Retriever:
     """
@@ -15,11 +18,13 @@ class Retriever:
     Dual path = search entity index + hyperedge index simultaneously.
     """
 
+    @traceable(name="retriever_init", run_type="chain")
     def __init__(self, artifacts_dir: str = "artifacts"):
         self.encoder = GeminiEncoder()
         self.artifacts_dir = artifacts_dir
         self._load()
 
+    @traceable(name="retriever_load", run_type="chain")
     def _load(self):
         # load FAISS indexes
         self.index_entity = faiss.read_index(
@@ -42,6 +47,7 @@ class Retriever:
         log.info(f"Retriever loaded: {len(self.entities)} entities, "
                  f"{len(self.hyperedges)} hyperedges")
 
+    @traceable(name="retriever_search_index", run_type="retriever")
     def _search_index(
         self,
         index: faiss.Index,
@@ -54,6 +60,7 @@ class Retriever:
         # indices shape: (1, k) — flatten to 1D list
         return indices[0].tolist()
 
+    @traceable(name="retriever_search", run_type="retriever")
     def search(
         self,
         query: str,

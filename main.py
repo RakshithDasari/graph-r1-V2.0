@@ -3,17 +3,22 @@ import logging
 from graph.builder import build
 from agent.retriever import Retriever
 from agent.controller import Controller
+from langsmith import traceable
+from langsmith_tracing import setup_langsmith
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 log = logging.getLogger(__name__)
+setup_langsmith()
 
+@traceable(name="run_build_cli", run_type="chain")
 def run_build(input_path: str, save_dir: str = "artifacts"):
     log.info(f"Build mode — input: {input_path}")
     build(input_path, save_dir)
 
+@traceable(name="run_query_cli", run_type="chain")
 def run_query(question: str, artifacts_dir: str = "artifacts"):
     log.info(f"Query mode — question: {question}")
     retriever = Retriever(artifacts_dir)
@@ -25,6 +30,7 @@ def run_query(question: str, artifacts_dir: str = "artifacts"):
     print(answer)
     print("="*50 + "\n")
 
+@traceable(name="run_update_cli", run_type="chain")
 def run_update(input_path: str, artifacts_dir: str = "artifacts"):
     from graph.updater import Updater
     log.info(f"Update mode — input: {input_path}")
@@ -32,6 +38,7 @@ def run_update(input_path: str, artifacts_dir: str = "artifacts"):
     result = updater.update(input_path)
     print(f"\nUpdate complete: +{result['added_entities']} entities, +{result['added_hyperedges']} hyperedges\n")
 
+@traceable(name="main_cli", run_type="chain")
 def main():
     parser = argparse.ArgumentParser(
         description="Multimodal Hypergraph RAG System"
