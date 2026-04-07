@@ -1,0 +1,9 @@
+{
+  "exact_match": 0.0,
+  "f1": 0.0,
+  "n": 300,
+  "avg_turns": 3.0,
+  "avg_latency_ms": 4546.064896332294,
+  "timeout_rate_pct": 0.0,
+  "error_rate_pct": 100.0
+}

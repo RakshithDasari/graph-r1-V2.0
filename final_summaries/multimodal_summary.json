@@ -1,0 +1,7 @@
+{
+  "image_node_recall_at_5": 0.0,
+  "cross_modal_accuracy": 0.0,
+  "text_only_accuracy": 0.0,
+  "delta": 0.0,
+  "avg_embedding_similarity": 0.29789549112319946
+}

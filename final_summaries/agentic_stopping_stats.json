@@ -1,0 +1,10 @@
+{
+  "avg_turns": 1.0,
+  "pct_1_turn": 100.0,
+  "pct_2_turns": 0.0,
+  "pct_3_turns": 0.0,
+  "early_stop_rate": 91.66666666666666,
+  "over_run_rate": 0.0,
+  "avg_latency_ms": 55003.150083333334,
+  "p95_latency_ms": 95138.62285
+}

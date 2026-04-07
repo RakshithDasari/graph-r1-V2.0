@@ -9,3 +9,6 @@ pymupdf               # fitz — PDF text and image extraction
 streamlit             # web UI
 pyvis                 # interactive knowledge graph visualization
 langsmith             # tracing and observability
+datasets              # benchmark datasets from Hugging Face
+pandas                # result aggregation and tabular reporting
+matplotlib            # benchmark and trace plots

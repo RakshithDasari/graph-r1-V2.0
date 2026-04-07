@@ -13,7 +13,8 @@ log = logging.getLogger(__name__)
 
 qwen = wrap_openai_client(OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY")
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    max_retries=0,
 ))
 
 CONTROLLER_PROMPT = """\
@@ -125,3 +126,36 @@ class Controller:
         log.warning("Max turns reached — answering with available context")
         final = self.decide(query, context)
         return final["answer"] or "I could not find a sufficient answer."
+
+    @traceable(name="controller_run_with_stats", run_type="chain")
+    def run_with_stats(self, query: str, retriever) -> dict:
+        """
+        Run the agentic loop and also report how many turns were used.
+        """
+        current_query = query
+        context = {}
+
+        for turn in range(self.max_turns):
+            log.info(f"Turn {turn+1}/{self.max_turns} — searching: '{current_query}'")
+
+            context = retriever.search(current_query)
+            decision = self.decide(query, context)
+
+            if decision["done"]:
+                log.info(f"Answer found on turn {turn+1}")
+                return {
+                    "answer": decision["answer"],
+                    "turns": turn + 1,
+                    "done": True,
+                }
+
+            current_query = decision["next_query"] or current_query
+            log.info(f"Retrying with: '{current_query}'")
+
+        log.warning("Max turns reached — answering with available context")
+        final = self.decide(query, context)
+        return {
+            "answer": final["answer"] or "I could not find a sufficient answer.",
+            "turns": self.max_turns,
+            "done": False,
+        }

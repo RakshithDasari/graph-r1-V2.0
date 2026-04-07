@@ -155,3 +155,55 @@ pyvis              Interactive graph visualization
 
 **Rakshith Dasari**  
 [GitHub](https://github.com/RakshithDasari) · [LinkedIn](https://linkedin.com/in/your-profile)
+
+---
+
+# Evaluation Journey (Beginner-Friendly)
+
+This project was evaluated in a structured, step-by-step way so you can trust both the process and the outputs.
+
+## What We Evaluated
+
+We evaluated the system on 4 axes:
+
+1. Multi-hop QA accuracy:
+- Can the system answer complex questions that require connecting multiple facts?
+
+2. Multimodal retrieval:
+- Can it use image-related context when needed?
+
+3. Incremental update efficiency:
+- How fast does updating the graph/index get as new data is added?
+
+4. Agentic stopping behavior:
+- Does the controller stop at the right time, or over/under-run?
+
+## Where Final Outputs Are
+
+Final outputs are now organized into two folders:
+
+1. `final_results/`
+- Contains final row-level prediction outputs (JSONL files).
+
+2. `final_summaries/`
+- Contains final summaries, paper tables, benchmark/trace plots, and consolidated numbers.
+
+## What Was Cleaned Up
+
+- Test-only artifacts were removed.
+- Optional rerun helpers were moved to `bin_optional/` and ignored via `.gitignore`.
+- `requirements_eval.txt` was merged into `requirements.txt` so there is one requirements file.
+
+## Important Note About Scores
+
+Some runs were heavily affected by free-tier API rate limits (429 responses). That means the pipeline completed, but quality metrics may be lower than expected due to throttling rather than model design alone.
+
+## If You Re-run Later
+
+For best stability:
+
+1. Run one evaluation job at a time.
+2. Keep `--resume` enabled.
+3. Re-generate final tables after runs finish.
+
+This keeps the workflow reliable and reproducible.

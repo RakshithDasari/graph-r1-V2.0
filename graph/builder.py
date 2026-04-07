@@ -11,7 +11,7 @@ import logging
 import numpy as np
 import faiss
 import networkx as nx
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Any
 from openai import OpenAI
 from dotenv import load_dotenv
 from langsmith import traceable
@@ -80,6 +80,31 @@ def parse_llm_response(response: str) -> dict:
     if not match:
         raise ValueError(f"No JSON found in LLM response: {response[:200]}")
     return json.loads(match.group())
+
+
+def _safe_message_content(response: Any) -> str:
+    """Safely read chat completion text from providers that may return partial payloads."""
+    choices = getattr(response, "choices", None)
+    if not choices:
+        return ""
+
+    message = getattr(choices[0], "message", None)
+    if message is None:
+        return ""
+
+    content = getattr(message, "content", "")
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        # Some providers return content blocks; collect text blocks only.
+        text_parts = []
+        for block in content:
+            if isinstance(block, dict):
+                block_text = block.get("text")
+                if isinstance(block_text, str):
+                    text_parts.append(block_text)
+        return "\n".join(text_parts).strip()
+    return ""
 
 
 # =============================================================================
@@ -213,7 +238,10 @@ def extract_entities(
             log.warning(f"Chunk {i+1} request failed, skipping: {type(e).__name__}: {e}")
             continue
 
-        raw = response.choices[0].message.content
+        raw = _safe_message_content(response)
+        if not raw:
+            log.warning(f"Chunk {i+1} returned empty completion payload, skipping")
+            continue
 
         # defensive parse — never trust LLM output directly
         try:
@@ -243,13 +271,21 @@ def extract_entities(
 
         # process hyperedges
         for h in parsed.get("hyperedges", []):
-            if h["fact"] not in seen_hyperedge_facts:
+            if not isinstance(h, dict):
+                continue
+
+            fact = h.get("fact", "")
+            connects = h.get("connects", [])
+            if not isinstance(fact, str) or not fact.strip() or not isinstance(connects, list):
+                continue
+
+            if fact not in seen_hyperedge_facts:
                 all_hyperedges.append({
                     "id": f"h_{hyperedge_counter}",
-                    "fact": h["fact"],
-                    "connects": h["connects"]
+                    "fact": fact,
+                    "connects": connects
                 })
-                seen_hyperedge_facts.add(h["fact"])
+                seen_hyperedge_facts.add(fact)
                 hyperedge_counter += 1
 
         log.info(f"Chunk {i+1}/{len(chunks)} extracted")
@@ -269,7 +305,10 @@ def extract_entities(
         except Exception as e:
             log.warning(f"Image extraction failed for {img_path}: {type(e).__name__}: {e}")
             continue
-        description = response.choices[0].message.content.strip()
+        description = _safe_message_content(response).strip()
+        if not description:
+            log.warning(f"Image extraction returned empty completion for {img_path}, skipping")
+            continue
 
         # image itself becomes an entity node
         all_entities.append({

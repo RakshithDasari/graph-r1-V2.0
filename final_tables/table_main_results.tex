@@ -1,0 +1,16 @@
+\begin{table*}[t]
+\centering
+\caption{Main Results Across Datasets and Baselines}
+\begin{tabular}{l|cccc|cccc|cccc}
+\hline
+Model & \multicolumn{4}{c|}{HotpotQA} & \multicolumn{4}{c|}{2Wiki} & \multicolumn{4}{c}{MuSiQue} \\
+& EM & F1 & Avg-Turns & Lat(s) & EM & F1 & Avg-Turns & Lat(s) & EM & F1 & Avg-Turns & Lat(s) \\
+\hline
+HIRA & 0.00 & 0.00 & 3.00 & 2.96 & 0.00 & 0.00 & 3.00 & 4.55 & 0.00 & 0.10 & 2.99 & 2.50 \\
+FlatRAG & 0.00 & 0.00 & 1.00 & 1.80 & - & - & - & - & - & - & - & - \\
+FixedTurn-HIRA & \textbf{0.33} & \textbf{0.36} & 1.00 & 23.23 & - & - & - & - & - & - & - & - \\
+\hline
+\multicolumn{13}{l}{Multimodal recall@5: 0.00\% \quad Update speedup: 13.38x} \\
+\hline
+\end{tabular}
+\end{table*}

@@ -1,0 +1,11 @@
+{
+  "hira_hotpotqa_em": 0.0,
+  "hira_hotpotqa_f1": 0.0,
+  "hira_2wikimhqa_em": 0.0,
+  "hira_2wikimhqa_f1": 0.0,
+  "hira_musique_em": 0.0,
+  "hira_musique_f1": 0.1037037037037037,
+  "multimodal_recall_at_5": 0.0,
+  "update_speedup_factor_max": 13.382375070961572,
+  "axis4_avg_turns": 1.0
+}
