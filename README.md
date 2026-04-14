@@ -158,7 +158,7 @@ pyvis              Interactive graph visualization
 
 ---
 
-# Evaluation Journey (Beginner-Friendly)
+# Evaluation Journey 
 
 This project was evaluated in a structured, step-by-step way so you can trust both the process and the outputs.
 
