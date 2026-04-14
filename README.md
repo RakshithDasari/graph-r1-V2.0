@@ -1,11 +1,9 @@
 # HIRA
 ### Hypergraph-Indexed Retrieval Augmentation via Multimodal Agentic Reasoning
 
-<br>
-
 ![System Architecture](system_architecture.png)
 
-<br>
+---
 
 ## Overview
 
@@ -42,8 +40,6 @@ HIRA/
 
 ## Embedding Model Options
 
-HIRA supports two embedding backends depending on corpus type and cost constraints.
-
 | Model | Dimensions | Modalities | Cost | Recommended for |
 |---|---|---|---|---|
 | Gemini Embedding 2 | 3072 | Text, image, video, audio | Free tier / pay-as-you-go | Mixed media corpora |
@@ -73,12 +69,6 @@ Create a `.env` file in the project root:
 GEMINI_API_KEY=your_gemini_key
 OPENROUTER_API_KEY=your_openrouter_key
 ```
-
----
-
-## Docker
-
-> **TODO:** Add Docker setup and deployment instructions here.
 
 ---
 
@@ -118,11 +108,67 @@ Free-tier build time is governed by the Gemini API rate limit (10 RPM). This can
 
 ---
 
+## Evaluation
+
+The system was evaluated on four axes: multi-hop QA accuracy, multimodal retrieval, incremental update efficiency, and agentic stopping behavior. Evaluations were run on 300-sample splits of HotpotQA, 2WikiMultiHopQA, and MuSiQue.
+
+> **Note on scores:** Some runs were affected by free-tier API rate limits (429 responses). Quality metrics may be lower than expected due to throttling rather than model design.
+
+### Multi-hop QA
+
+| Dataset | Exact Match | F1 | Samples | Avg Turns | Avg Latency (ms) | Timeout Rate | Error Rate |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| HotpotQA | 0.00 | 0.00 | 300 | 3.00 | 2956.31 | 0.00% | 100.00% |
+| 2WikiMultiHopQA | 0.00 | 0.00 | 300 | 3.00 | 4546.06 | 0.00% | 100.00% |
+| MuSiQue | 0.00 | 0.10 | 300 | 2.99 | 2504.02 | 2.33% | 98.67% |
+
+HotpotQA and 2WikiMultiHopQA returned zero exact match and zero F1, indicating the answer-generation path is not yet reliably producing correct outputs on these benchmarks. MuSiQue shows a small F1 gain (0.10), suggesting partial token overlap. Average turns are around 3 across all datasets — the agent iterates, but those turns are not yet translating into better answers. The high error rate is the main bottleneck in this stage.
+
+### Multimodal Retrieval
+
+| Metric | Value |
+|---|---:|
+| Image-node recall@5 | 0.00 |
+| Cross-modal accuracy | 0.00 |
+| Text-only accuracy | 0.00 |
+| Delta | 0.00 |
+| Avg embedding similarity | 0.2979 |
+
+Image-node recall is zero in the current run, meaning the retrieval stage did not surface relevant image-linked nodes within the top-5 results. The non-zero average embedding similarity confirms the pipeline is functioning, but the signal is not yet strong enough to produce correct retrieval outcomes.
+
+### Incremental Update Efficiency
+
+| Checkpoint | Rebuild Time (s) | Patch Time (s) | Changed Entities | Total Entities | k/N Ratio | Recall After Update | Speedup |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 100 | 0.0064 | 0.0064 | 4684 | 4684 | 1.0000 | 0.00 | 1.00 |
+| 120 | 0.0027 | 0.0002 | 584 | 5268 | 0.1109 | 0.00 | 13.38× |
+
+The second checkpoint shows a clear efficiency gain: patching is 13.38× faster than a full rebuild, with only ~11% of the graph requiring updates. Recall after update is still zero in the recorded benchmark — the incremental path is efficient, but update quality still needs validation.
+
+### Agentic Stopping Behavior
+
+| Metric | Value |
+|---|---:|
+| Avg turns | 1.00 |
+| % stopping at 1 turn | 100.00% |
+| Early stop rate | 91.67% |
+| Over-run rate | 0.00% |
+| Avg latency (ms) | 55003.15 |
+| P95 latency (ms) | 95138.62 |
+
+The controller strongly favors stopping after one turn. Over-run rate is zero, so the system does not waste effort by searching too long. However, the high early-stop rate suggests the controller often halts before gathering enough evidence. Tail latency (P95 ~95 seconds) remains a practical concern.
+
+### Overall Assessment
+
+The strongest result is the incremental-update speedup, which validates the update architecture's efficiency over full rebuilds. The stopping policy is also stable and does not over-run. The main weakness is answer quality — multi-hop QA and multimodal retrieval do not yet show measurable gains. If the next goal is publication-grade performance, the priority should be improving retrieval precision and investigating the high error rates in the answer-generation stage.
+
+---
+
 ## Known Limitations
 
-- Deletion is not supported — the updater is append-only. Production fix: migrate FAISS to `IndexIDMap` or replace with Milvus.
-- Image entity descriptions are passed as file path text to the extraction LLM rather than actual image bytes. Full multimodal extraction requires a vision-capable extraction model.
-- Free-tier build time scales linearly with document size due to per-request rate limiting.
+- **Deletion not supported** — the updater is append-only. Production fix: migrate FAISS to `IndexIDMap` or replace with Milvus.
+- **Image extraction is path-based** — image entity descriptions are passed as file path text to the extraction LLM rather than actual image bytes. Full multimodal extraction requires a vision-capable extraction model.
+- **Free-tier latency** — build time scales linearly with document size due to per-request rate limiting.
 
 ---
 
@@ -155,55 +201,3 @@ pyvis              Interactive graph visualization
 
 **Rakshith Dasari**  
 [GitHub](https://github.com/RakshithDasari) · [LinkedIn](https://linkedin.com/in/your-profile)
-
----
-
-# Evaluation Journey 
-
-This project was evaluated in a structured, step-by-step way so you can trust both the process and the outputs.
-
-## What We Evaluated
-
-We evaluated the system on 4 axes:
-
-1. Multi-hop QA accuracy:
-- Can the system answer complex questions that require connecting multiple facts?
-
-2. Multimodal retrieval:
-- Can it use image-related context when needed?
-
-3. Incremental update efficiency:
-- How fast does updating the graph/index get as new data is added?
-
-4. Agentic stopping behavior:
-- Does the controller stop at the right time, or over/under-run?
-
-## Where Final Outputs Are
-
-Final outputs are now organized into two folders:
-
-1. `final_results/`
-- Contains final row-level prediction outputs (JSONL files).
-
-2. `final_summaries/`
-- Contains final summaries, paper tables, benchmark/trace plots, and consolidated numbers.
-
-## What Was Cleaned Up
-
-- Test-only artifacts were removed.
-- Optional rerun helpers were moved to `bin_optional/` and ignored via `.gitignore`.
-- `requirements_eval.txt` was merged into `requirements.txt` so there is one requirements file.
-
-## Important Note About Scores
-
-Some runs were heavily affected by free-tier API rate limits (429 responses). That means the pipeline completed, but quality metrics may be lower than expected due to throttling rather than model design alone.
-
-## If You Re-run Later
-
-For best stability:
-
-1. Run one evaluation job at a time.
-2. Keep `--resume` enabled.
-3. Re-generate final tables after runs finish.
-
-This keeps the workflow reliable and reproducible.
